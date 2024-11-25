@@ -5,6 +5,7 @@ const {
 	getApiEndpoints,
 	getTopics,
 	getArticleById,
+	getArticles,
 } = require('./controllers/api.controller');
 const { customErrorHandling, psqlErrorHandling } = require('./error-handling');
 
@@ -13,6 +14,8 @@ app.get('/api', getApiEndpoints);
 app.get('/api/topics', getTopics);
 
 app.get('/api/articles/:article_id', getArticleById);
+
+app.get('/api/articles', getArticles);
 
 app.all('*', (req, res) => {
 	res.status(404).send({ msg: 'Not found' });
