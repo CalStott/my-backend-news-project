@@ -3,6 +3,7 @@ const {
 	fetchAllTopics,
 	fetchArticleById,
 	fetchArticles,
+	fetchCommentsById,
 } = require('../models/api.model');
 
 exports.getApiEndpoints = (req, res) => {
@@ -30,6 +31,15 @@ exports.getArticles = (req, res, next) => {
 	fetchArticles()
 		.then((articles) => {
 			res.status(200).send({ articles });
+		})
+		.catch(next);
+};
+
+exports.getCommentsById = (req, res, next) => {
+	const { article_id } = req.params;
+	fetchCommentsById(article_id)
+		.then((comments) => {
+			res.status(200).send({ comments });
 		})
 		.catch(next);
 };
