@@ -12,8 +12,14 @@ exports.psqlErrorHandling = (err, req, res, next) => {
 			case '22P02':
 				res.status(400).send({ msg: 'Bad request' });
 				break;
+			default:
+				console.log(err);
 		}
 	} else {
-		console.log(err, '<-- logged err in psql err handling');
+		next(err);
 	}
+};
+
+exports.serverErrorHandling = (err, req, res, next) => {
+	res.status(500).send({ msg: 'Internal Server Error' });
 };

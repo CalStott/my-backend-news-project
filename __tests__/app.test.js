@@ -51,11 +51,11 @@ describe('GET /api', () => {
 	describe('GET /api/articles/:article_id', () => {
 		test('200: Responds with an object detailing the information for the specified article', () => {
 			return request(app)
-				.get('/api/articles/1')
+				.get('/api/articles/2')
 				.expect(200)
 				.then(({ body: { article } }) => {
 					expect(article).toMatchObject({
-						article_id: 1,
+						article_id: 2,
 						author: expect.any(String),
 						title: expect.any(String),
 						body: expect.any(String),
@@ -104,6 +104,44 @@ describe('GET /api', () => {
 							comment_count: expect.any(String),
 						});
 					});
+				});
+		});
+	});
+
+	describe('GET /api/articles/:article_id/comments', () => {
+		test('200: Responds with an array of comment objects for the input article id', () => {
+			return request(app)
+				.get('/api/articles/3/comments')
+				.expect(200)
+				.then(({ body: { comments } }) => {
+					expect(comments).toHaveLength(2);
+					expect(comments).toBeSortedBy('created_at', { descending: true });
+					comments.forEach((comment) => {
+						expect(comment).toMatchObject({
+							comment_id: expect.any(Number),
+							body: expect.any(String),
+							article_id: 3,
+							author: expect.any(String),
+							votes: expect.any(Number),
+							created_at: expect.any(String),
+						});
+					});
+				});
+		});
+		test('404: Responds with an error message when passed a valid url parameter but there is no content', () => {
+			return request(app)
+				.get('/api/articles/4836/comments')
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Not found');
+				});
+		});
+		test('400: Responds with an error message when passed an invalid url parameter', () => {
+			return request(app)
+				.get('/api/articles/recipes/comments')
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Bad request');
 				});
 		});
 	});

@@ -6,8 +6,13 @@ const {
 	getTopics,
 	getArticleById,
 	getArticles,
+	getCommentsById,
 } = require('./controllers/api.controller');
-const { customErrorHandling, psqlErrorHandling } = require('./error-handling');
+const {
+	customErrorHandling,
+	psqlErrorHandling,
+	serverErrorHandling,
+} = require('./error-handling');
 
 app.get('/api', getApiEndpoints);
 
@@ -17,6 +22,8 @@ app.get('/api/articles/:article_id', getArticleById);
 
 app.get('/api/articles', getArticles);
 
+app.get('/api/articles/:article_id/comments', getCommentsById);
+
 app.all('*', (req, res) => {
 	res.status(404).send({ msg: 'Not found' });
 });
@@ -24,5 +31,7 @@ app.all('*', (req, res) => {
 app.use(customErrorHandling);
 
 app.use(psqlErrorHandling);
+
+app.use(serverErrorHandling);
 
 module.exports = app;
