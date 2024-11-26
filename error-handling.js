@@ -10,10 +10,10 @@ exports.psqlErrorHandling = (err, req, res, next) => {
 	if (err.code) {
 		switch (err.code) {
 			case '22P02':
+			case '23502':
+			case '23503':
 				res.status(400).send({ msg: 'Bad request' });
 				break;
-			default:
-				console.log(err);
 		}
 	} else {
 		next(err);

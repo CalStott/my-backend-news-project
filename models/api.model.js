@@ -48,3 +48,15 @@ exports.checkArticleIdExists = (article_id) => {
 			}
 		});
 };
+
+exports.createCommentById = (article_id, comment) => {
+	const { username, body } = comment;
+	return db
+		.query(
+			`INSERT INTO comments(article_id, author, body) VALUES ($1, $2, $3) RETURNING *;`,
+			[article_id, username, body]
+		)
+		.then(({ rows }) => {
+			return rows[0];
+		});
+};
