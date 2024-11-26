@@ -6,6 +6,7 @@ const {
 	fetchCommentsById,
 	checkArticleIdExists,
 	createCommentById,
+	updateArticleById,
 } = require('../models/api.model');
 
 exports.getApiEndpoints = (req, res) => {
@@ -60,6 +61,16 @@ exports.postCommentById = (req, res, next) => {
 	Promise.all(promises)
 		.then(([comment]) => {
 			res.status(201).send({ comment });
+		})
+		.catch(next);
+};
+
+exports.patchArticleById = (req, res, next) => {
+	const { article_id } = req.params;
+	const { inc_votes } = req.body;
+	updateArticleById(article_id, inc_votes)
+		.then((article) => {
+			res.status(200).send({ article });
 		})
 		.catch(next);
 };
