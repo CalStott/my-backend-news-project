@@ -64,7 +64,7 @@
 		}
 	},
 	"POST /api/articles/:article_id/comments": {
-		"description": "serves an object of the new created comment from the comments table",
+		"description": "serves an object of the newly posted comment from the comments table",
 		"exampleResponse": {
 			"comment_id": 19,
 			"body": "60% of the time it works 100% of the time",
