@@ -9,6 +9,7 @@ const {
 	getCommentsById,
 	postCommentById,
 	patchArticleById,
+	deletesCommentById,
 } = require('./controllers/api.controller');
 const {
 	customErrorHandling,
@@ -31,6 +32,8 @@ app.get('/api/articles/:article_id/comments', getCommentsById);
 app.post('/api/articles/:article_id/comments', postCommentById);
 
 app.patch('/api/articles/:article_id', patchArticleById);
+
+app.delete('/api/comments/:comment_id', deletesCommentById);
 
 app.all('*', (req, res) => {
 	res.status(404).send({ msg: 'Not found' });

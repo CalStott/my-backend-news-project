@@ -176,7 +176,33 @@ describe('POST /api/articles/:article_id/comments', () => {
 				});
 			});
 	});
-	test('400: Responds with an error message when trying to post a comment with invalid keys', () => {
+	test('404: Responds with error message when article id does not exist', () => {
+		const testComment = {
+			username: 'butter_bridge',
+			body: '60% of the time it works 100% of the time',
+		};
+		return request(app)
+			.post('/api/articles/8679/comments')
+			.send(testComment)
+			.expect(404)
+			.then(({ body: { msg } }) => {
+				expect(msg).toBe('Not found');
+			});
+	});
+	test('404: Responds with error message when username in body does not exist in the users table', () => {
+		const testComment = {
+			username: 'invalid_username',
+			body: '60% of the time it works 100% of the time',
+		};
+		return request(app)
+			.post('/api/articles/2/comments')
+			.send(testComment)
+			.expect(404)
+			.then(({ body: { msg } }) => {
+				expect(msg).toBe('Not found');
+			});
+	});
+	test('400: Responds with an error message when trying to post a comment with incomplete body', () => {
 		const testComment = {
 			username: 'butter_bridge',
 		};
@@ -188,35 +214,9 @@ describe('POST /api/articles/:article_id/comments', () => {
 				expect(msg).toBe('Bad request');
 			});
 	});
-	test('400: Responds with error message when article id does not exist', () => {
-		const testComment = {
-			username: 'butter_bridge',
-			body: '60% of the time it works 100% of the time',
-		};
-		return request(app)
-			.post('/api/articles/8679/comments')
-			.send(testComment)
-			.expect(400)
-			.then(({ body: { msg } }) => {
-				expect(msg).toBe('Bad request');
-			});
-	});
-	test('400: Responds with error message when username in body does not exist in the users table', () => {
-		const testComment = {
-			username: 'invalid_username',
-			body: '60% of the time it works 100% of the time',
-		};
-		return request(app)
-			.post('/api/articles/8679/comments')
-			.send(testComment)
-			.expect(400)
-			.then(({ body: { msg } }) => {
-				expect(msg).toBe('Bad request');
-			});
-	});
 	test('400: Responds with error message when passed an invalid url parameter', () => {
 		const testComment = {
-			username: 'invalid_username',
+			username: 'butter_bridge',
 			body: '60% of the time it works 100% of the time',
 		};
 		return request(app)
@@ -230,7 +230,7 @@ describe('POST /api/articles/:article_id/comments', () => {
 });
 
 describe('PATCH /api/articles/:article_id', () => {
-	test('200: Responds with the updated article object', () => {
+	test('200: Responds with the updated article object when passed positive inc_votes number', () => {
 		const updatedInfo = { inc_votes: 20 };
 		return request(app)
 			.patch('/api/articles/3')
@@ -245,6 +245,25 @@ describe('PATCH /api/articles/:article_id', () => {
 					body: 'some gifs',
 					created_at: expect.any(String),
 					votes: 20,
+					article_img_url: expect.any(String),
+				});
+			});
+	});
+	test('200: Responds with the updated article object when passed negative inc_votes number', () => {
+		const updatedInfo = { inc_votes: -50 };
+		return request(app)
+			.patch('/api/articles/3')
+			.send(updatedInfo)
+			.expect(200)
+			.then(({ body: { article } }) => {
+				expect(article).toMatchObject({
+					article_id: 3,
+					title: 'Eight pug gifs that remind me of mitch',
+					topic: 'mitch',
+					author: 'icellusedkars',
+					body: 'some gifs',
+					created_at: expect.any(String),
+					votes: -50,
 					article_img_url: expect.any(String),
 				});
 			});
@@ -274,6 +293,28 @@ describe('PATCH /api/articles/:article_id', () => {
 		return request(app)
 			.patch('/api/articles/16817')
 			.send(updatedInfo)
+			.expect(400)
+			.then(({ body: { msg } }) => {
+				expect(msg).toBe('Bad request');
+			});
+	});
+});
+
+describe.only('DELETE /api/comments/:comment_id', () => {
+	test('204: Responds with only status code as no content to return', () => {
+		return request(app).delete('/api/comments/8').expect(204);
+	});
+	test('404: Responds with an error message when passed a valid url parameter that does not exist in the database', () => {
+		return request(app)
+			.delete('/api/comments/68137')
+			.expect(404)
+			.then(({ body: { msg } }) => {
+				expect(msg).toBe('Not found');
+			});
+	});
+	test('400: Responds with an error message when passed an invalid url parameter', () => {
+		return request(app)
+			.delete('/api/comments/this-is-my-comment')
 			.expect(400)
 			.then(({ body: { msg } }) => {
 				expect(msg).toBe('Bad request');

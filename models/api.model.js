@@ -49,6 +49,16 @@ exports.checkArticleIdExists = (article_id) => {
 		});
 };
 
+exports.checkUserExists = (username) => {
+	return db
+		.query(`SELECT * FROM users WHERE username = $1;`, [username])
+		.then(({ rows }) => {
+			if (!rows.length) {
+				return Promise.reject({ status: 404, msg: 'Not found' });
+			}
+		});
+};
+
 exports.createCommentById = (article_id, comment) => {
 	const { username, body } = comment;
 	return db
@@ -72,5 +82,17 @@ exports.updateArticleById = (articleId, updatedInfo) => {
 				return Promise.reject({ status: 404, msg: 'Not found' });
 			}
 			return rows[0];
+		});
+};
+
+exports.removeCommentById = (commentId) => {
+	return db
+		.query(` DELETE FROM comments WHERE comment_id = $1 RETURNING *;`, [
+			commentId,
+		])
+		.then(({ rows }) => {
+			if (rows.length === 0) {
+				return Promise.reject({ status: 404, msg: 'Not found' });
+			}
 		});
 };
