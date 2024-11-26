@@ -4,6 +4,7 @@ const {
 	fetchArticleById,
 	fetchArticles,
 	fetchCommentsById,
+	checkArticleIdExists,
 } = require('../models/api.model');
 
 exports.getApiEndpoints = (req, res) => {
@@ -37,8 +38,12 @@ exports.getArticles = (req, res, next) => {
 
 exports.getCommentsById = (req, res, next) => {
 	const { article_id } = req.params;
-	fetchCommentsById(article_id)
-		.then((comments) => {
+	const promises = [
+		fetchCommentsById(article_id),
+		checkArticleIdExists(article_id),
+	];
+	Promise.all(promises)
+		.then(([comments]) => {
 			res.status(200).send({ comments });
 		})
 		.catch(next);
