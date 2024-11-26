@@ -9,6 +9,7 @@ const {
 	updateArticleById,
 	checkUserExists,
 	removeCommentById,
+	fetchUsers,
 } = require('../models/api.model');
 
 exports.getApiEndpoints = (req, res) => {
@@ -85,6 +86,14 @@ exports.deletesCommentById = (req, res, next) => {
 	removeCommentById(comment_id)
 		.then(() => {
 			res.status(204).send();
+		})
+		.catch(next);
+};
+
+exports.getUsers = (req, res, next) => {
+	fetchUsers()
+		.then((users) => {
+			res.status(200).send({ users });
 		})
 		.catch(next);
 };
