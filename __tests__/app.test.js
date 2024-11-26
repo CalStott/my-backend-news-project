@@ -228,3 +228,55 @@ describe('POST /api/articles/:article_id/comments', () => {
 			});
 	});
 });
+
+describe('PATCH /api/articles/:article_id', () => {
+	test('200: Responds with the updated article object', () => {
+		const updatedInfo = { inc_votes: 20 };
+		return request(app)
+			.patch('/api/articles/3')
+			.send(updatedInfo)
+			.expect(200)
+			.then(({ body: { article } }) => {
+				expect(article).toMatchObject({
+					article_id: 3,
+					title: 'Eight pug gifs that remind me of mitch',
+					topic: 'mitch',
+					author: 'icellusedkars',
+					body: 'some gifs',
+					created_at: expect.any(String),
+					votes: 20,
+					article_img_url: expect.any(String),
+				});
+			});
+	});
+	test('404: Responds with error message when passed valid url parameter that does not exist in database', () => {
+		const updatedInfo = { inc_votes: 20 };
+		return request(app)
+			.patch('/api/articles/16817')
+			.send(updatedInfo)
+			.expect(404)
+			.then(({ body: { msg } }) => {
+				expect(msg).toBe('Not found');
+			});
+	});
+	test('400: Responds with error message when passed invalid url parameter for article id', () => {
+		const updatedInfo = { inc_votes: 20 };
+		return request(app)
+			.patch('/api/articles/dog')
+			.send(updatedInfo)
+			.expect(400)
+			.then(({ body: { msg } }) => {
+				expect(msg).toBe('Bad request');
+			});
+	});
+	test('400: Responds with error message when passed invalid body parameter to update', () => {
+		const updatedInfo = { inc_votes: 'cat' };
+		return request(app)
+			.patch('/api/articles/16817')
+			.send(updatedInfo)
+			.expect(400)
+			.then(({ body: { msg } }) => {
+				expect(msg).toBe('Bad request');
+			});
+	});
+});
