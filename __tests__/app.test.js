@@ -154,3 +154,77 @@ describe('GET /api', () => {
 		});
 	});
 });
+
+describe('POST /api/articles/:article_id/comments', () => {
+	test('201: Responds with posted comment', () => {
+		const testComment = {
+			username: 'butter_bridge',
+			body: '60% of the time it works 100% of the time',
+		};
+		return request(app)
+			.post('/api/articles/2/comments')
+			.send(testComment)
+			.expect(201)
+			.then(({ body: { comment } }) => {
+				expect(comment).toMatchObject({
+					comment_id: expect.any(Number),
+					body: '60% of the time it works 100% of the time',
+					article_id: 2,
+					author: 'butter_bridge',
+					votes: 0,
+					created_at: expect.any(String),
+				});
+			});
+	});
+	test('400: Responds with an error message when trying to post a comment with invalid keys', () => {
+		const testComment = {
+			username: 'butter_bridge',
+		};
+		return request(app)
+			.post('/api/articles/2/comments')
+			.send(testComment)
+			.expect(400)
+			.then(({ body: { msg } }) => {
+				expect(msg).toBe('Bad request');
+			});
+	});
+	test('400: Responds with error message when article id does not exist', () => {
+		const testComment = {
+			username: 'butter_bridge',
+			body: '60% of the time it works 100% of the time',
+		};
+		return request(app)
+			.post('/api/articles/8679/comments')
+			.send(testComment)
+			.expect(400)
+			.then(({ body: { msg } }) => {
+				expect(msg).toBe('Bad request');
+			});
+	});
+	test('400: Responds with error message when username in body does not exist in the users table', () => {
+		const testComment = {
+			username: 'invalid_username',
+			body: '60% of the time it works 100% of the time',
+		};
+		return request(app)
+			.post('/api/articles/8679/comments')
+			.send(testComment)
+			.expect(400)
+			.then(({ body: { msg } }) => {
+				expect(msg).toBe('Bad request');
+			});
+	});
+	test('400: Responds with error message when passed an invalid url parameter', () => {
+		const testComment = {
+			username: 'invalid_username',
+			body: '60% of the time it works 100% of the time',
+		};
+		return request(app)
+			.post('/api/articles/dog/comments')
+			.send(testComment)
+			.expect(400)
+			.then(({ body: { msg } }) => {
+				expect(msg).toBe('Bad request');
+			});
+	});
+});

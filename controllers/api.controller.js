@@ -5,6 +5,7 @@ const {
 	fetchArticles,
 	fetchCommentsById,
 	checkArticleIdExists,
+	createCommentById,
 } = require('../models/api.model');
 
 exports.getApiEndpoints = (req, res) => {
@@ -45,6 +46,20 @@ exports.getCommentsById = (req, res, next) => {
 	Promise.all(promises)
 		.then(([comments]) => {
 			res.status(200).send({ comments });
+		})
+		.catch(next);
+};
+
+exports.postCommentById = (req, res, next) => {
+	const { article_id } = req.params;
+	const newComment = req.body;
+	const promises = [
+		createCommentById(article_id, newComment),
+		checkArticleIdExists(article_id),
+	];
+	Promise.all(promises)
+		.then(([comment]) => {
+			res.status(201).send({ comment });
 		})
 		.catch(next);
 };
