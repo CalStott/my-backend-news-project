@@ -128,6 +128,14 @@ describe('GET /api', () => {
 					});
 				});
 		});
+		test('200: Responds with status code and empty array when article id exists but there is no content to present', () => {
+			return request(app)
+				.get('/api/articles/2/comments')
+				.expect(200)
+				.then(({ body: { comments } }) => {
+					expect(comments).toEqual([]);
+				});
+		});
 		test('404: Responds with an error message when passed a valid url parameter but there is no content', () => {
 			return request(app)
 				.get('/api/articles/4836/comments')
