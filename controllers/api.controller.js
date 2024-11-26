@@ -7,6 +7,8 @@ const {
 	checkArticleIdExists,
 	createCommentById,
 	updateArticleById,
+	checkUserExists,
+	removeCommentById,
 } = require('../models/api.model');
 
 exports.getApiEndpoints = (req, res) => {
@@ -54,12 +56,15 @@ exports.getCommentsById = (req, res, next) => {
 exports.postCommentById = (req, res, next) => {
 	const { article_id } = req.params;
 	const newComment = req.body;
-	const promises = [
-		createCommentById(article_id, newComment),
-		checkArticleIdExists(article_id),
-	];
-	Promise.all(promises)
-		.then(([comment]) => {
+
+	checkArticleIdExists(article_id)
+		.then(() => {
+			return checkUserExists(newComment.username);
+		})
+		.then(() => {
+			return createCommentById(article_id, newComment);
+		})
+		.then((comment) => {
 			res.status(201).send({ comment });
 		})
 		.catch(next);
@@ -71,6 +76,15 @@ exports.patchArticleById = (req, res, next) => {
 	updateArticleById(article_id, inc_votes)
 		.then((article) => {
 			res.status(200).send({ article });
+		})
+		.catch(next);
+};
+
+exports.deletesCommentById = (req, res, next) => {
+	const { comment_id } = req.params;
+	removeCommentById(comment_id)
+		.then(() => {
+			res.status(204).send();
 		})
 		.catch(next);
 };
