@@ -10,6 +10,7 @@ const {
 	postCommentById,
 	patchArticleById,
 	deletesCommentById,
+	getUsers,
 } = require('./controllers/api.controller');
 const {
 	customErrorHandling,
@@ -28,6 +29,8 @@ app.get('/api/articles/:article_id', getArticleById);
 app.get('/api/articles', getArticles);
 
 app.get('/api/articles/:article_id/comments', getCommentsById);
+
+app.get('/api/users', getUsers);
 
 app.post('/api/articles/:article_id/comments', postCommentById);
 
