@@ -66,6 +66,24 @@ describe('GET /api', () => {
 					});
 				});
 		});
+		test('200: Responds with an object detailing the information for the specified article with added comment_count key', () => {
+			return request(app)
+				.get('/api/articles/6')
+				.expect(200)
+				.then(({ body: { article } }) => {
+					expect(article).toMatchObject({
+						article_id: 6,
+						author: expect.any(String),
+						title: expect.any(String),
+						body: expect.any(String),
+						topic: expect.any(String),
+						created_at: expect.any(String),
+						votes: expect.any(Number),
+						article_img_url: expect.any(String),
+						comment_count: 1,
+					});
+				});
+		});
 		test('404: Responds with an error message when passed a valid url parameter but there is no content there', () => {
 			return request(app)
 				.get('/api/articles/9046')
