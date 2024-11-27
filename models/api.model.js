@@ -18,7 +18,7 @@ exports.fetchArticleById = (articleId) => {
 		});
 };
 
-exports.fetchArticles = (sort_by = 'created_at', order = 'desc') => {
+exports.fetchArticles = (sort_by = 'created_at', order = 'desc', topic) => {
 	const validSortValues = [
 		'article_id',
 		'title',
@@ -28,7 +28,10 @@ exports.fetchArticles = (sort_by = 'created_at', order = 'desc') => {
 		'votes',
 	];
 	const validOrderValues = ['ASC', 'DESC'];
+	const validTopicValues = ['mitch', 'cats', 'paper'];
 	const uppercaseOrder = order.toUpperCase();
+
+	let queryStr = `SELECT articles.article_id, articles.title, articles.author, articles.topic, articles.created_at, articles.votes, articles.article_img_url, CAST(COUNT(comments.article_id) AS int) AS comment_count FROM articles LEFT OUTER JOIN comments ON comments.article_id = articles.article_id `;
 	const queryValues = [];
 
 	if (
@@ -38,17 +41,23 @@ exports.fetchArticles = (sort_by = 'created_at', order = 'desc') => {
 		return Promise.reject({ status: 400, msg: 'Bad request' });
 	}
 
-	if (order) {
-		queryValues.push(uppercaseOrder);
+	if (topic) {
+		if (!validTopicValues.includes(topic)) {
+			return Promise.reject({ status: 400, msg: 'Bad request' });
+		}
+		queryStr += `WHERE articles.topic = $1 `;
+		queryValues.push(topic);
 	}
 
-	return db
-		.query(
-			`SELECT articles.article_id, articles.title, articles.author, articles.topic, articles.created_at, articles.votes, articles.article_img_url, CAST(COUNT(comments.article_id) AS int) AS comment_count FROM articles LEFT OUTER JOIN comments ON comments.article_id = articles.article_id GROUP BY articles.article_id ORDER BY articles.${sort_by} ${uppercaseOrder};`
-		)
-		.then(({ rows }) => {
-			return rows;
-		});
+	queryStr += `GROUP BY articles.article_id `;
+
+	if (sort_by || order) {
+		queryStr += `ORDER BY articles.${sort_by} ${uppercaseOrder};`;
+	}
+
+	return db.query(queryStr, queryValues).then(({ rows }) => {
+		return rows;
+	});
 };
 
 exports.fetchCommentsById = (articleId) => {
