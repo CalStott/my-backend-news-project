@@ -153,6 +153,42 @@ describe('GET /api', () => {
 						expect(articles).toBeSortedBy('author');
 					});
 			});
+			test('200: Should correctly filter the data by the input topic query', () => {
+				return request(app)
+					.get('/api/articles?topic=cats')
+					.expect(200)
+					.then(({ body: { articles } }) => {
+						expect(articles).toHaveLength(1);
+						articles.forEach((article) => {
+							expect(article).toMatchObject({
+								article_id: expect.any(Number),
+								author: expect.any(String),
+								title: expect.any(String),
+								topic: 'cats',
+								created_at: expect.any(String),
+								votes: expect.any(Number),
+								article_img_url: expect.any(String),
+								comment_count: expect.any(Number),
+							});
+						});
+					});
+			});
+			test('200: Should correctly filter the data by the input topic query if there is no information to return', () => {
+				return request(app)
+					.get('/api/articles?topic=paper')
+					.expect(200)
+					.then(({ body: { articles } }) => {
+						expect(articles).toEqual([]);
+					});
+			});
+			test('400: Responds with error message when passed invalid topic query', () => {
+				return request(app)
+					.get('/api/articles?topic=bricks')
+					.expect(400)
+					.then(({ body: { msg } }) => {
+						expect(msg).toBe('Bad request');
+					});
+			});
 		});
 	});
 
