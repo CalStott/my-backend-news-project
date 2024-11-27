@@ -106,6 +106,54 @@ describe('GET /api', () => {
 					});
 				});
 		});
+		describe('GET /api/articles?queries', () => {
+			test('200: Should correctly sort the data by the input sort query', () => {
+				return request(app)
+					.get('/api/articles?sort_by=votes')
+					.expect(200)
+					.then(({ body: { articles } }) => {
+						expect(articles).toHaveLength(13);
+						expect(articles).toBeSortedBy('votes', {
+							descending: true,
+							coerce: true,
+						});
+					});
+			});
+			test('400: Responds with error message when passed invalid sort query', () => {
+				return request(app)
+					.get('/api/articles?sort_by=very_wrong_sort')
+					.expect(400)
+					.then(({ body: { msg } }) => {
+						expect(msg).toBe('Bad request');
+					});
+			});
+			test('200: Should correctly order the data by the input order query', () => {
+				return request(app)
+					.get('/api/articles?order=asc')
+					.expect(200)
+					.then(({ body: { articles } }) => {
+						expect(articles).toHaveLength(13);
+						expect(articles).toBeSortedBy('created_at');
+					});
+			});
+			test('400: Responds with error message when passed invalid order query', () => {
+				return request(app)
+					.get('/api/articles?order=entropy')
+					.expect(400)
+					.then(({ body: { msg } }) => {
+						expect(msg).toBe('Bad request');
+					});
+			});
+			test('200: Should correctly sort and order the data by the input sort and order queries', () => {
+				return request(app)
+					.get('/api/articles?sort_by=author&order=asc')
+					.expect(200)
+					.then(({ body: { articles } }) => {
+						expect(articles).toHaveLength(13);
+						expect(articles).toBeSortedBy('author');
+					});
+			});
+		});
 	});
 
 	describe('GET /api/articles/:article_id/comments', () => {
