@@ -138,3 +138,11 @@ exports.fetchUsers = () => {
 		return rows;
 	});
 };
+
+exports.fetchUserByUsername = (inputUsername) => {
+	return db
+		.query(`SELECT * FROM users WHERE username = $1;`, [inputUsername])
+		.then(({ rows }) => {
+			return rows[0];
+		});
+};
