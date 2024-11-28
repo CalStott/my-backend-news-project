@@ -272,6 +272,28 @@ describe('GET /api', () => {
 					});
 				});
 		});
+		describe('GET /api/users/:username', () => {
+			test('200: Responds with an object of the input user', () => {
+				return request(app)
+					.get('/api/users/rogersop')
+					.expect(200)
+					.then(({ body: { user } }) => {
+						expect(user).toMatchObject({
+							username: 'rogersop',
+							name: 'paul',
+							avatar_url: expect.any(String),
+						});
+					});
+			});
+			test('404: Responds with error message when passed a valid url parameter that does not exist in the database', () => {
+				return request(app)
+					.get('/api/users/the-wizard')
+					.expect(404)
+					.then(({ body: { msg } }) => {
+						expect(msg).toBe('Not found');
+					});
+			});
+		});
 	});
 });
 
