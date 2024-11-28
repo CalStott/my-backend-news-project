@@ -56,12 +56,12 @@ describe('GET /api', () => {
 				.then(({ body: { article } }) => {
 					expect(article).toMatchObject({
 						article_id: 2,
-						author: expect.any(String),
-						title: expect.any(String),
+						author: 'icellusedkars',
+						title: 'Sony Vaio; or, The Laptop',
 						body: expect.any(String),
-						topic: expect.any(String),
+						topic: 'mitch',
 						created_at: expect.any(String),
-						votes: expect.any(Number),
+						votes: 0,
 						article_img_url: expect.any(String),
 					});
 				});
@@ -73,12 +73,12 @@ describe('GET /api', () => {
 				.then(({ body: { article } }) => {
 					expect(article).toMatchObject({
 						article_id: 6,
-						author: expect.any(String),
-						title: expect.any(String),
-						body: expect.any(String),
-						topic: expect.any(String),
+						author: 'icellusedkars',
+						title: 'A',
+						body: 'Delicious tin of cat food',
+						topic: 'mitch',
 						created_at: expect.any(String),
-						votes: expect.any(Number),
+						votes: 0,
 						article_img_url: expect.any(String),
 						comment_count: 1,
 					});
@@ -199,12 +199,12 @@ describe('GET /api', () => {
 						expect(articles).toEqual([]);
 					});
 			});
-			test('400: Responds with error message when passed invalid topic query', () => {
+			test('404: Responds with error message when passed invalid topic query', () => {
 				return request(app)
 					.get('/api/articles?topic=bricks')
-					.expect(400)
+					.expect(404)
 					.then(({ body: { msg } }) => {
-						expect(msg).toBe('Bad request');
+						expect(msg).toBe('Not found');
 					});
 			});
 		});
