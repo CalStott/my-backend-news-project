@@ -35,7 +35,14 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
 	const { sort_by, order, topic } = req.query;
-	fetchArticles(sort_by, order, topic)
+	fetchAllTopics()
+		.then((topics) => {
+			const validTopics = topics.map((topic) => topic.slug);
+			return validTopics;
+		})
+		.then((validTopics) => {
+			return fetchArticles(sort_by, order, topic, validTopics);
+		})
 		.then((articles) => {
 			res.status(200).send({ articles });
 		})

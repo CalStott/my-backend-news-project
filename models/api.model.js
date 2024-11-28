@@ -21,7 +21,12 @@ exports.fetchArticleById = (articleId) => {
 		});
 };
 
-exports.fetchArticles = (sort_by = 'created_at', order = 'desc', topic) => {
+exports.fetchArticles = (
+	sort_by = 'created_at',
+	order = 'desc',
+	topic,
+	validTopics
+) => {
 	const validSortValues = [
 		'article_id',
 		'title',
@@ -31,7 +36,6 @@ exports.fetchArticles = (sort_by = 'created_at', order = 'desc', topic) => {
 		'votes',
 	];
 	const validOrderValues = ['ASC', 'DESC'];
-	const validTopicValues = ['mitch', 'cats', 'paper'];
 	const uppercaseOrder = order.toUpperCase();
 
 	let queryStr = `SELECT articles.article_id, articles.title, articles.author, articles.topic, articles.created_at, articles.votes, articles.article_img_url, CAST(COUNT(comments.article_id) AS int) AS comment_count FROM articles LEFT OUTER JOIN comments ON comments.article_id = articles.article_id `;
@@ -45,18 +49,15 @@ exports.fetchArticles = (sort_by = 'created_at', order = 'desc', topic) => {
 	}
 
 	if (topic) {
-		if (!validTopicValues.includes(topic)) {
-			return Promise.reject({ status: 400, msg: 'Bad request' });
+		if (!validTopics.includes(topic)) {
+			return Promise.reject({ status: 404, msg: 'Not found' });
 		}
 		queryStr += `WHERE articles.topic = $1 `;
 		queryValues.push(topic);
 	}
 
 	queryStr += `GROUP BY articles.article_id `;
-
-	if (sort_by || order) {
-		queryStr += `ORDER BY articles.${sort_by} ${uppercaseOrder};`;
-	}
+	queryStr += `ORDER BY articles.${sort_by} ${uppercaseOrder};`;
 
 	return db.query(queryStr, queryValues).then(({ rows }) => {
 		return rows;
