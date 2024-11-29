@@ -11,6 +11,7 @@ const {
 	removeCommentById,
 	fetchUsers,
 	fetchUserByUsername,
+	updateCommentById,
 } = require('../models/api.model');
 
 exports.getApiEndpoints = (req, res) => {
@@ -115,6 +116,16 @@ exports.getUserByUsername = (req, res, next) => {
 		})
 		.then((user) => {
 			res.status(200).send({ user });
+		})
+		.catch(next);
+};
+
+exports.patchCommentById = (req, res, next) => {
+	const { comment_id } = req.params;
+	const { inc_votes } = req.body;
+	updateCommentById(comment_id, inc_votes)
+		.then((comment) => {
+			res.status(200).send({ comment });
 		})
 		.catch(next);
 };
