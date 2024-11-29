@@ -297,77 +297,155 @@ describe('GET /api', () => {
 	});
 });
 
-describe('POST /api/articles/:article_id/comments', () => {
-	test('201: Responds with posted comment', () => {
-		const testComment = {
-			username: 'butter_bridge',
-			body: '60% of the time it works 100% of the time',
-		};
-		return request(app)
-			.post('/api/articles/2/comments')
-			.send(testComment)
-			.expect(201)
-			.then(({ body: { comment } }) => {
-				expect(comment).toMatchObject({
-					comment_id: expect.any(Number),
-					body: '60% of the time it works 100% of the time',
-					article_id: 2,
-					author: 'butter_bridge',
-					votes: 0,
-					created_at: expect.any(String),
+describe('POST /api', () => {
+	describe('POST /api/articles/:article_id/comments', () => {
+		test('201: Responds with posted comment', () => {
+			const testComment = {
+				username: 'butter_bridge',
+				body: '60% of the time it works 100% of the time',
+			};
+			return request(app)
+				.post('/api/articles/2/comments')
+				.send(testComment)
+				.expect(201)
+				.then(({ body: { comment } }) => {
+					expect(comment).toMatchObject({
+						comment_id: expect.any(Number),
+						body: '60% of the time it works 100% of the time',
+						article_id: 2,
+						author: 'butter_bridge',
+						votes: 0,
+						created_at: expect.any(String),
+					});
 				});
-			});
+		});
+		test('404: Responds with error message when article id does not exist', () => {
+			const testComment = {
+				username: 'butter_bridge',
+				body: '60% of the time it works 100% of the time',
+			};
+			return request(app)
+				.post('/api/articles/8679/comments')
+				.send(testComment)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Not found');
+				});
+		});
+		test('404: Responds with error message when username in body does not exist in the users table', () => {
+			const testComment = {
+				username: 'invalid_username',
+				body: '60% of the time it works 100% of the time',
+			};
+			return request(app)
+				.post('/api/articles/2/comments')
+				.send(testComment)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Not found');
+				});
+		});
+		test('400: Responds with an error message when trying to post a comment with incomplete body', () => {
+			const testComment = {
+				username: 'butter_bridge',
+			};
+			return request(app)
+				.post('/api/articles/2/comments')
+				.send(testComment)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Bad request');
+				});
+		});
+		test('400: Responds with error message when passed an invalid url parameter', () => {
+			const testComment = {
+				username: 'butter_bridge',
+				body: '60% of the time it works 100% of the time',
+			};
+			return request(app)
+				.post('/api/articles/dog/comments')
+				.send(testComment)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Bad request');
+				});
+		});
 	});
-	test('404: Responds with error message when article id does not exist', () => {
-		const testComment = {
-			username: 'butter_bridge',
-			body: '60% of the time it works 100% of the time',
-		};
-		return request(app)
-			.post('/api/articles/8679/comments')
-			.send(testComment)
-			.expect(404)
-			.then(({ body: { msg } }) => {
-				expect(msg).toBe('Not found');
-			});
-	});
-	test('404: Responds with error message when username in body does not exist in the users table', () => {
-		const testComment = {
-			username: 'invalid_username',
-			body: '60% of the time it works 100% of the time',
-		};
-		return request(app)
-			.post('/api/articles/2/comments')
-			.send(testComment)
-			.expect(404)
-			.then(({ body: { msg } }) => {
-				expect(msg).toBe('Not found');
-			});
-	});
-	test('400: Responds with an error message when trying to post a comment with incomplete body', () => {
-		const testComment = {
-			username: 'butter_bridge',
-		};
-		return request(app)
-			.post('/api/articles/2/comments')
-			.send(testComment)
-			.expect(400)
-			.then(({ body: { msg } }) => {
-				expect(msg).toBe('Bad request');
-			});
-	});
-	test('400: Responds with error message when passed an invalid url parameter', () => {
-		const testComment = {
-			username: 'butter_bridge',
-			body: '60% of the time it works 100% of the time',
-		};
-		return request(app)
-			.post('/api/articles/dog/comments')
-			.send(testComment)
-			.expect(400)
-			.then(({ body: { msg } }) => {
-				expect(msg).toBe('Bad request');
-			});
+
+	describe('POST /api/articles', () => {
+		test('201: Responds with the posted article', () => {
+			const testArticle = {
+				author: 'lurker',
+				title: 'How to test for Dummies',
+				body: "It's a bad sign if you're only just learning this now",
+				topic: 'paper',
+				article_img_url: 'https://tinyurl.com/testing-for-dummies',
+			};
+			return request(app)
+				.post('/api/articles')
+				.send(testArticle)
+				.expect(201)
+				.then(({ body: { article } }) => {
+					expect(article).toMatchObject({
+						article_id: 14,
+						title: 'How to test for Dummies',
+						topic: 'paper',
+						author: 'lurker',
+						body: "It's a bad sign if you're only just learning this now",
+						created_at: expect.any(String),
+						votes: 0,
+						article_img_url: 'https://tinyurl.com/testing-for-dummies',
+						comment_count: 0,
+					});
+				});
+		});
+		test('404: Responds with error message when author does not exist in the users table', () => {
+			const testArticle = {
+				author: 'ConMan101',
+				title: 'How to test for Dummies',
+				body: "It's a bad sign if you're only just learning this now",
+				topic: 'paper',
+				article_img_url: 'https://tinyurl.com/testing-for-dummies',
+			};
+			return request(app)
+				.post('/api/articles')
+				.send(testArticle)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Not found');
+				});
+		});
+		test('404: Responds with error message when topic does not exist in the topics table', () => {
+			const testArticle = {
+				author: 'lurker',
+				title: 'How to test for Dummies',
+				body: "It's a bad sign if you're only just learning this now",
+				topic: 'Progamming Lessons',
+				article_img_url: 'https://tinyurl.com/testing-for-dummies',
+			};
+			return request(app)
+				.post('/api/articles')
+				.send(testArticle)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Not found');
+				});
+		});
+		test('400: Responds with error message when trying to post an article with an incomplete body', () => {
+			const testArticle = {
+				author: 'lurker',
+				body: "It's a bad sign if you're only just learning this now",
+				topic: 'paper',
+				article_img_url: 'https://tinyurl.com/testing-for-dummies',
+			};
+			return request(app)
+				.post('/api/articles')
+				.send(testArticle)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Bad request');
+				});
+		});
 	});
 });
 

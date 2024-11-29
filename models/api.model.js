@@ -160,3 +160,23 @@ exports.updateCommentById = (commentId, updatedInfo) => {
 			return rows[0];
 		});
 };
+
+exports.checkTopicExists = (topic) => {
+	return db
+		.query(`SELECT slug FROM topics WHERE slug = $1;`, [topic])
+		.then(({ rows }) => {
+			if (!rows.length) {
+				return Promise.reject({ status: 404, msg: 'Not found' });
+			}
+		});
+};
+
+exports.createArticle = (newArticle) => {
+	const { author, title, body, topic, article_img_url } = newArticle;
+	const queryValues = [author, title, body, topic, article_img_url];
+	const queryStr = `INSERT INTO articles(author, title, body, topic, article_img_url) VALUES ($1, $2, $3, $4, $5) RETURNING *;`;
+
+	return db.query(queryStr, queryValues).then(({ rows }) => {
+		return { ...rows[0], comment_count: 0 };
+	});
+};
