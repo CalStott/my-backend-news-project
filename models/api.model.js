@@ -75,14 +75,19 @@ exports.fetchArticles = (
 	});
 };
 
-exports.fetchCommentsById = (articleId) => {
+exports.fetchCommentsById = (articleId, limit = 10, page = 0) => {
+	const offsetValue = limit * page;
 	return db
 		.query(
-			`SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC;`,
-			[articleId]
+			`SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3;`,
+			[articleId, limit, offsetValue]
 		)
 		.then(({ rows }) => {
-			return rows;
+			if (!rows.length && offsetValue > rows.length) {
+				return Promise.reject({ status: 404, msg: 'Not found' });
+			} else {
+				return rows;
+			}
 		});
 };
 
