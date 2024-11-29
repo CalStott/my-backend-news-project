@@ -371,74 +371,143 @@ describe('POST /api/articles/:article_id/comments', () => {
 	});
 });
 
-describe('PATCH /api/articles/:article_id', () => {
-	test('200: Responds with the updated article object when passed positive inc_votes number', () => {
-		const updatedInfo = { inc_votes: 20 };
-		return request(app)
-			.patch('/api/articles/3')
-			.send(updatedInfo)
-			.expect(200)
-			.then(({ body: { article } }) => {
-				expect(article).toMatchObject({
-					article_id: 3,
-					title: 'Eight pug gifs that remind me of mitch',
-					topic: 'mitch',
-					author: 'icellusedkars',
-					body: 'some gifs',
-					created_at: expect.any(String),
-					votes: 20,
-					article_img_url: expect.any(String),
+describe('PATCH /api', () => {
+	describe('PATCH /api/articles/:article_id', () => {
+		test('200: Responds with the updated article object when passed positive inc_votes number', () => {
+			const updatedInfo = { inc_votes: 20 };
+			return request(app)
+				.patch('/api/articles/3')
+				.send(updatedInfo)
+				.expect(200)
+				.then(({ body: { article } }) => {
+					expect(article).toMatchObject({
+						article_id: 3,
+						title: 'Eight pug gifs that remind me of mitch',
+						topic: 'mitch',
+						author: 'icellusedkars',
+						body: 'some gifs',
+						created_at: expect.any(String),
+						votes: 20,
+						article_img_url: expect.any(String),
+					});
 				});
-			});
-	});
-	test('200: Responds with the updated article object when passed negative inc_votes number', () => {
-		const updatedInfo = { inc_votes: -50 };
-		return request(app)
-			.patch('/api/articles/3')
-			.send(updatedInfo)
-			.expect(200)
-			.then(({ body: { article } }) => {
-				expect(article).toMatchObject({
-					article_id: 3,
-					title: 'Eight pug gifs that remind me of mitch',
-					topic: 'mitch',
-					author: 'icellusedkars',
-					body: 'some gifs',
-					created_at: expect.any(String),
-					votes: -50,
-					article_img_url: expect.any(String),
+		});
+		test('200: Responds with the updated article object when passed negative inc_votes number', () => {
+			const updatedInfo = { inc_votes: -50 };
+			return request(app)
+				.patch('/api/articles/3')
+				.send(updatedInfo)
+				.expect(200)
+				.then(({ body: { article } }) => {
+					expect(article).toMatchObject({
+						article_id: 3,
+						title: 'Eight pug gifs that remind me of mitch',
+						topic: 'mitch',
+						author: 'icellusedkars',
+						body: 'some gifs',
+						created_at: expect.any(String),
+						votes: -50,
+						article_img_url: expect.any(String),
+					});
 				});
-			});
+		});
+		test('404: Responds with error message when passed valid url parameter that does not exist in database', () => {
+			const updatedInfo = { inc_votes: 20 };
+			return request(app)
+				.patch('/api/articles/16817')
+				.send(updatedInfo)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Not found');
+				});
+		});
+		test('400: Responds with error message when passed invalid url parameter for article id', () => {
+			const updatedInfo = { inc_votes: 20 };
+			return request(app)
+				.patch('/api/articles/dog')
+				.send(updatedInfo)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Bad request');
+				});
+		});
+		test('400: Responds with error message when passed invalid body parameter to update', () => {
+			const updatedInfo = { inc_votes: 'cat' };
+			return request(app)
+				.patch('/api/articles/3')
+				.send(updatedInfo)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Bad request');
+				});
+		});
 	});
-	test('404: Responds with error message when passed valid url parameter that does not exist in database', () => {
-		const updatedInfo = { inc_votes: 20 };
-		return request(app)
-			.patch('/api/articles/16817')
-			.send(updatedInfo)
-			.expect(404)
-			.then(({ body: { msg } }) => {
-				expect(msg).toBe('Not found');
-			});
-	});
-	test('400: Responds with error message when passed invalid url parameter for article id', () => {
-		const updatedInfo = { inc_votes: 20 };
-		return request(app)
-			.patch('/api/articles/dog')
-			.send(updatedInfo)
-			.expect(400)
-			.then(({ body: { msg } }) => {
-				expect(msg).toBe('Bad request');
-			});
-	});
-	test('400: Responds with error message when passed invalid body parameter to update', () => {
-		const updatedInfo = { inc_votes: 'cat' };
-		return request(app)
-			.patch('/api/articles/16817')
-			.send(updatedInfo)
-			.expect(400)
-			.then(({ body: { msg } }) => {
-				expect(msg).toBe('Bad request');
-			});
+
+	describe('PATCH /api/comments/:comment_id', () => {
+		test('200: Responds with updated comment when passed a positive votes number', () => {
+			const updatedInfo = { inc_votes: 20 };
+			return request(app)
+				.patch('/api/comments/2')
+				.send(updatedInfo)
+				.expect(200)
+				.then(({ body: { comment } }) => {
+					expect(comment).toMatchObject({
+						comment_id: 2,
+						body: 'The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.',
+						votes: 34,
+						author: 'butter_bridge',
+						article_id: 1,
+						created_at: expect.any(String),
+					});
+				});
+		});
+		test('200: Responds with updated comment when passed a negative votes number', () => {
+			const updatedInfo = { inc_votes: -44 };
+			return request(app)
+				.patch('/api/comments/2')
+				.send(updatedInfo)
+				.expect(200)
+				.then(({ body: { comment } }) => {
+					expect(comment).toMatchObject({
+						comment_id: 2,
+						body: 'The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.',
+						votes: -30,
+						author: 'butter_bridge',
+						article_id: 1,
+						created_at: expect.any(String),
+					});
+				});
+		});
+		test('404: Responds with error message when passed a valid url parameter that does not exist in the database', () => {
+			const updatedInfo = { inc_votes: 20 };
+			return request(app)
+				.patch('/api/comments/615')
+				.send(updatedInfo)
+				.expect(404)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Not found');
+				});
+		});
+		test('400: Responds with error message when passed invalid url parameter', () => {
+			const updatedInfo = { inc_votes: 20 };
+			return request(app)
+				.patch('/api/comments/this-is-my-comment')
+				.send(updatedInfo)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Bad request');
+				});
+		});
+		test('400: Responds with error message when passed invalid body parameter', () => {
+			const updatedInfo = { inc_votes: "I don't like this" };
+			return request(app)
+				.patch('/api/comments/1')
+				.send(updatedInfo)
+				.expect(400)
+				.then(({ body: { msg } }) => {
+					expect(msg).toBe('Bad request');
+				});
+		});
 	});
 });
 
