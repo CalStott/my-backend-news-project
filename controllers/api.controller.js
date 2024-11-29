@@ -12,6 +12,8 @@ const {
 	fetchUsers,
 	fetchUserByUsername,
 	updateCommentById,
+	createArticle,
+	checkTopicExists,
 } = require('../models/api.model');
 
 exports.getApiEndpoints = (req, res) => {
@@ -126,6 +128,21 @@ exports.patchCommentById = (req, res, next) => {
 	updateCommentById(comment_id, inc_votes)
 		.then((comment) => {
 			res.status(200).send({ comment });
+		})
+		.catch(next);
+};
+
+exports.postArticle = (req, res, next) => {
+	const newArticle = req.body;
+	checkUserExists(newArticle.author)
+		.then(() => {
+			return checkTopicExists(newArticle.topic);
+		})
+		.then(() => {
+			return createArticle(newArticle);
+		})
+		.then((article) => {
+			res.status(201).send({ article });
 		})
 		.catch(next);
 };
