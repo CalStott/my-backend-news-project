@@ -47,8 +47,8 @@
 		}
 	},
 	"GET /api/articles": {
-		"description": "serves an array of all articles",
-		"queries": ["author", "topic", "sort_by", "order"],
+		"description": "serves an array of all articles that can be filtered using queries",
+		"queries": ["topic", "sort_by", "order", "limit", "p (page)"],
 		"exampleResponse": {
 			"articles": [
 				{
@@ -61,7 +61,8 @@
 					"comment_count": 6,
 					"article_img_url": "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700"
 				}
-			]
+			],
+			"total_count": 1
 		}
 	},
 	"GET /api/articles/:article_id/comments": {

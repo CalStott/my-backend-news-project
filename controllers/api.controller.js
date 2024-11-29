@@ -38,17 +38,16 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-	const { sort_by, order, topic } = req.query;
-	fetchAllTopics()
-		.then((topics) => {
-			const validTopics = topics.map((topic) => topic.slug);
-			return validTopics;
-		})
-		.then((validTopics) => {
-			return fetchArticles(sort_by, order, topic, validTopics);
-		})
+	const { sort_by, order, topic, limit, p } = req.query;
+	const resultsLength = limit * p;
+	if (topic !== undefined) {
+		checkTopicExists(topic).catch(next);
+	}
+
+	fetchArticles(sort_by, order, topic, limit, p)
 		.then((articles) => {
-			res.status(200).send({ articles });
+			const numOfArticles = articles.length;
+			res.status(200).send({ articles, total_count: numOfArticles });
 		})
 		.catch(next);
 };

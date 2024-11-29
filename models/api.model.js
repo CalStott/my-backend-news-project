@@ -25,7 +25,8 @@ exports.fetchArticles = (
 	sort_by = 'created_at',
 	order = 'desc',
 	topic,
-	validTopics
+	limit = 10,
+	page
 ) => {
 	const validSortValues = [
 		'article_id',
@@ -49,18 +50,28 @@ exports.fetchArticles = (
 	}
 
 	if (topic) {
-		if (!validTopics.includes(topic)) {
-			return Promise.reject({ status: 404, msg: 'Not found' });
-		}
-		queryStr += `WHERE articles.topic = $1 `;
 		queryValues.push(topic);
+		queryStr += `WHERE articles.topic = $${queryValues.length} `;
 	}
 
 	queryStr += `GROUP BY articles.article_id `;
-	queryStr += `ORDER BY articles.${sort_by} ${uppercaseOrder};`;
+	queryStr += `ORDER BY articles.${sort_by} ${uppercaseOrder} `;
+
+	queryValues.push(limit);
+	queryStr += `LIMIT $${queryValues.length} `;
+
+	const offsetValue = limit * page;
+	if (page) {
+		queryValues.push(offsetValue);
+		queryStr += `OFFSET $${queryValues.length}`;
+	}
 
 	return db.query(queryStr, queryValues).then(({ rows }) => {
-		return rows;
+		if (!rows.length && offsetValue > rows.length) {
+			return Promise.reject({ status: 404, msg: 'Not found' });
+		} else {
+			return rows;
+		}
 	});
 };
 
