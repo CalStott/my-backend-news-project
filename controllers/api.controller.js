@@ -39,7 +39,6 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
 	const { sort_by, order, topic, limit, p } = req.query;
-	const resultsLength = limit * p;
 	if (topic !== undefined) {
 		checkTopicExists(topic).catch(next);
 	}
@@ -54,12 +53,13 @@ exports.getArticles = (req, res, next) => {
 
 exports.getCommentsById = (req, res, next) => {
 	const { article_id } = req.params;
-	const promises = [
-		fetchCommentsById(article_id),
-		checkArticleIdExists(article_id),
-	];
-	Promise.all(promises)
-		.then(([comments]) => {
+	const { limit, p } = req.query;
+
+	checkArticleIdExists(article_id)
+		.then(() => {
+			return fetchCommentsById(article_id, limit, p);
+		})
+		.then((comments) => {
 			res.status(200).send({ comments });
 		})
 		.catch(next);

@@ -348,6 +348,89 @@ describe('GET /api', () => {
 					expect(msg).toBe('Bad request');
 				});
 		});
+		describe('GET /api/articles/:article_id/comments pagination', () => {
+			test('200: Should correctly limit returned results to input limit query', () => {
+				return request(app)
+					.get('/api/articles/1/comments?limit=8')
+					.expect(200)
+					.then(({ body: { comments } }) => {
+						expect(comments).toHaveLength(8);
+						expect(comments).toBeSortedBy('created_at', { descending: true });
+						comments.forEach((comment) => {
+							expect(comment).toMatchObject({
+								comment_id: expect.any(Number),
+								body: expect.any(String),
+								article_id: 1,
+								author: expect.any(String),
+								votes: expect.any(Number),
+								created_at: expect.any(String),
+							});
+						});
+					});
+			});
+			test('200: Should correctly offset results by the input page query', () => {
+				return request(app)
+					.get('/api/articles/1/comments?p=1')
+					.expect(200)
+					.then(({ body: { comments } }) => {
+						expect(comments).toHaveLength(1);
+						expect(comments).toBeSortedBy('created_at', { descending: true });
+						comments.forEach((comment) => {
+							expect(comment).toMatchObject({
+								comment_id: expect.any(Number),
+								body: expect.any(String),
+								article_id: 1,
+								author: expect.any(String),
+								votes: expect.any(Number),
+								created_at: expect.any(String),
+							});
+						});
+					});
+			});
+			test('200: Should correctly limit and offest results by the input limit and page queries', () => {
+				return request(app)
+					.get('/api/articles/1/comments?limit=3&p=2')
+					.expect(200)
+					.then(({ body: { comments } }) => {
+						expect(comments).toHaveLength(3);
+						expect(comments).toBeSortedBy('created_at', { descending: true });
+						comments.forEach((comment) => {
+							expect(comment).toMatchObject({
+								comment_id: expect.any(Number),
+								body: expect.any(String),
+								article_id: 1,
+								author: expect.any(String),
+								votes: expect.any(Number),
+								created_at: expect.any(String),
+							});
+						});
+					});
+			});
+			test('404: Responds with an error message when passed a valid page parameter but there is no information to show', () => {
+				return request(app)
+					.get('/api/articles/1/comments?p=43')
+					.expect(404)
+					.then(({ body: { msg } }) => {
+						expect(msg).toBe('Not found');
+					});
+			});
+			test('400: Responds with an error message when passed an invalid limit parameter', () => {
+				return request(app)
+					.get('/api/articles/1/comments?limit=unlimited')
+					.expect(400)
+					.then(({ body: { msg } }) => {
+						expect(msg).toBe('Bad request');
+					});
+			});
+			test('400: Responds with an error message when passed an invalid page parameter', () => {
+				return request(app)
+					.get('/api/articles/1/comments?p=I_dont_know')
+					.expect(400)
+					.then(({ body: { msg } }) => {
+						expect(msg).toBe('Bad request');
+					});
+			});
+		});
 	});
 
 	describe('GET /api/users', () => {
