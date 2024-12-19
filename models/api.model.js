@@ -56,7 +56,9 @@ exports.fetchArticles = (
 	}
 
 	queryStr += `GROUP BY articles.article_id `;
-	queryStr += `ORDER BY articles.${sort_by} ${uppercaseOrder} `;
+	sort_by === 'comment_count'
+		? (queryStr += `ORDER BY ${sort_by} ${uppercaseOrder} `)
+		: (queryStr += `ORDER BY articles.${sort_by} ${uppercaseOrder} `);
 
 	queryValues.push(limit);
 	queryStr += `LIMIT $${queryValues.length} `;
