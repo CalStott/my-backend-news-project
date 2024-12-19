@@ -35,6 +35,7 @@ exports.fetchArticles = (
 		'author',
 		'created_at',
 		'votes',
+		'comment_count',
 	];
 	const validOrderValues = ['ASC', 'DESC'];
 	const uppercaseOrder = order.toUpperCase();
